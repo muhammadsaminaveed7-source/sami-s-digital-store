@@ -7,6 +7,57 @@
   <title>Sami Digital Store | Demo Shop</title>
   <meta name="description" content="A sample sneaker store built for a Meta Ads learning demo.">
 
+  <!-- META PIXEL CODE -->
+  <script>
+    const META_PIXEL_ID = "2645164559266606";
+
+    if (
+      META_PIXEL_ID !== "YOUR_PIXEL_ID" &&
+      /^\d+$/.test(META_PIXEL_ID)
+    ) {
+      !function(f,b,e,v,n,t,s) {
+        if (f.fbq) return;
+        n = f.fbq = function() {
+          n.callMethod ?
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = true;
+        n.version = '2.0';
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = true;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      }(
+        window,
+        document,
+        'script',
+        'https://connect.facebook.net/en_US/fbevents.js'
+      );
+
+      fbq('init', META_PIXEL_ID);
+      fbq('track', 'PageView');
+    }
+
+    function trackDemoEvent(name, data) {
+      if (typeof window.fbq === "function") {
+        window.fbq("track", name, data || {});
+      }
+
+      console.log("[Demo event]", name, data || {});
+    }
+  </script>
+
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=2645164559266606&ev=PageView&noscript=1"
+      alt="">
+  </noscript>
+  <!-- END META PIXEL CODE -->
+
   <style>
     :root {
       --ink: #17202b;
@@ -315,53 +366,6 @@
       .hero { border-radius: 18px; }
     }
   </style>
-
-  <!-- META PIXEL DEMO
-       Replace YOUR_PIXEL_ID only with an authorized Pixel ID.
-       Do not paste access tokens here.
-       Keep tracking disabled until privacy/consent requirements are handled. -->
-
-  <script>
-   const META_PIXEL_ID = "2645164559266606";
-    if (
-      META_PIXEL_ID !== "YOUR_PIXEL_ID" &&
-      /^\d+$/.test(META_PIXEL_ID)
-    ) {
-      !function(f,b,e,v,n,t,s) {
-        if (f.fbq) return;
-        n = f.fbq = function() {
-          n.callMethod ?
-          n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = true;
-        n.version = '2.0';
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = true;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      }(
-        window,
-        document,
-        'script',
-        'https://connect.facebook.net/en_US/fbevents.js'
-      );
-
-      fbq('init', META_PIXEL_ID);
-      fbq('track', 'PageView');
-    }
-
-    function trackDemoEvent(name, data) {
-      if (typeof window.fbq === "function") {
-        window.fbq("track", name, data || {});
-      }
-
-      console.log("[Demo event]", name, data || {});
-    }
-  </script>
 </head>
 
 <body>
@@ -553,7 +557,7 @@
       // Update cart display
       document.getElementById('cartCount').textContent = cartCount;
 
-      // Send Meta Pixel event if enabled
+      // Send Meta Pixel AddToCart event
       trackDemoEvent('AddToCart', {
         content_name: name,
         content_type: 'product',
