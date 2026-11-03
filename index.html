@@ -285,6 +285,57 @@
       cursor: pointer;
     }
 
+    .cart-section {
+      margin: 28px 0 36px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+    }
+
+    .cart-section h2 { margin-bottom: 16px; }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 14px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cart-item:last-child { border-bottom: 0; }
+
+    .cart-name { font-weight: 800; font-size: 14px; }
+    .cart-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .qty-controls button, .remove-btn, .clear-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 7px 11px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .remove-btn { color: #b42318; }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+      font-weight: 900;
+    }
+
+    .empty-cart { color: var(--muted); font-size: 13px; }
+    .cart-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+
     .info {
       margin: 36px 0;
       background: #fff;
@@ -348,6 +399,11 @@
       font-size: 10px;
       font-weight: 900;
       letter-spacing: .7px;
+    }
+
+    @media(max-width:600px) {
+      .cart-item { grid-template-columns: 1fr auto; }
+      .remove-btn { grid-column: 2; }
     }
 
     @media(max-width:760px) {
@@ -435,65 +491,19 @@
       <span class="eyebrow">NEW ARRIVALS</span>
     </div>
 
-    <section class="grid">
+    <section class="grid" id="productGrid" aria-label="Sneaker products"></section>
 
-      <article class="card">
-        <div class="photo">
-          <img
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=85"
-            alt="Red runner sneaker">
-        </div>
-
-        <h3>Pulse Runner</h3>
-        <div class="desc">Lightweight everyday sneaker</div>
-
-        <div class="price-row">
-          <span class="price">Rs. 4,499</span>
-          <button class="small-btn"
-            onclick="addToCart('Pulse Runner',4499)">
-            Add to bag
-          </button>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="photo">
-          <img
-            src="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=700&q=85"
-            alt="Classic sneaker">
-        </div>
-
-        <h3>Classic Street</h3>
-        <div class="desc">Minimal style for daily wear</div>
-
-        <div class="price-row">
-          <span class="price">Rs. 5,299</span>
-          <button class="small-btn"
-            onclick="addToCart('Classic Street',5299)">
-            Add to bag
-          </button>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="photo">
-          <img
-            src="https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?auto=format&fit=crop&w=700&q=85"
-            alt="Sneaker collection">
-        </div>
-
-        <h3>Motion Flex</h3>
-        <div class="desc">Comfort-focused active sneaker</div>
-
-        <div class="price-row">
-          <span class="price">Rs. 5,999</span>
-          <button class="small-btn"
-            onclick="addToCart('Motion Flex',5999)">
-            Add to bag
-          </button>
-        </div>
-      </article>
-
+    <section class="cart-section" id="cart">
+      <h2>Your shopping bag</h2>
+      <div id="cartItems" aria-live="polite"></div>
+      <div class="cart-total">
+        <span>Demo total</span>
+        <span id="cartTotal">Rs. 0</span>
+      </div>
+      <div class="cart-actions">
+        <button class="clear-btn" type="button" onclick="clearCart()">Clear bag</button>
+      </div>
+      <p class="desc">Demo only: no checkout, payment or real order is available.</p>
     </section>
 
     <section class="info" id="about">
@@ -525,53 +535,196 @@
   <div class="notice" id="notice" role="status"></div>
 
   <script>
-    // Load previously saved cart count
-    let cartCount = Number(
-      localStorage.getItem('samiDemoCartCount') || 0
-    );
+    const products = [
+      {
+        id: "pulse-runner",
+        name: "Pulse Runner",
+        description: "Lightweight everyday sneaker",
+        price: 4499,
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=85"
+      },
+      {
+        id: "classic-street",
+        name: "Classic Street",
+        description: "Minimal style for daily wear",
+        price: 5299,
+        image: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=700&q=85"
+      },
+      {
+        id: "motion-flex",
+        name: "Motion Flex",
+        description: "Comfort-focused active sneaker",
+        price: 5999,
+        image: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?auto=format&fit=crop&w=700&q=85"
+      },
+      {
+        id: "urban-low",
+        name: "Urban Low",
+        description: "Casual low-top street sneaker",
+        price: 4799,
+        image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=700&q=85"
+      },
+      {
+        id: "cloud-step",
+        name: "Cloud Step",
+        description: "Soft everyday comfort",
+        price: 6499,
+        image: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?auto=format&fit=crop&w=700&q=85"
+      },
+      {
+        id: "court-classic",
+        name: "Court Classic",
+        description: "Clean court-inspired design",
+        price: 5599,
+        image: "https://images.unsplash.com/photo-1520256862855-398228c41684?auto=format&fit=crop&w=700&q=85"
+      }
+    ];
 
-    // Display saved cart count
-    document.getElementById('cartCount').textContent = cartCount;
+    let cart = {};
+    try {
+      const savedCart = JSON.parse(localStorage.getItem("samiDemoCart") || "{}");
+      if (savedCart && typeof savedCart === "object" && !Array.isArray(savedCart)) {
+        cart = savedCart;
+      }
+    } catch (error) {
+      cart = {};
+    }
 
-    // Show notification
+    // Migrate the old demo's numeric cart count into an empty cart.
+    // The old count did not store product details, so it cannot be itemized.
+    function money(amount) {
+      return "Rs. " + Number(amount).toLocaleString("en-PK");
+    }
+
     function toast(message) {
-      const el = document.getElementById('notice');
-
+      const el = document.getElementById("notice");
       el.textContent = message;
-      el.style.display = 'block';
-
+      el.style.display = "block";
       clearTimeout(window.toastTimer);
-
       window.toastTimer = setTimeout(() => {
-        el.style.display = 'none';
+        el.style.display = "none";
       }, 2600);
     }
 
-    // Add product to demo cart
-    function addToCart(name, price) {
-      cartCount++;
-
-      // Save cart count in browser
-      localStorage.setItem('samiDemoCartCount', cartCount);
-
-      // Update cart display
-      document.getElementById('cartCount').textContent = cartCount;
-
-      // Send Meta Pixel AddToCart event
-      trackDemoEvent('AddToCart', {
-        content_name: name,
-        content_type: 'product',
-        value: price,
-        currency: 'PKR'
-      });
-
-      toast(name + ' added to demo bag. No real order was placed.');
+    function saveCart() {
+      localStorage.setItem("samiDemoCart", JSON.stringify(cart));
+      renderCart();
     }
 
-    // Demonstration ViewContent event
-    trackDemoEvent('ViewContent', {
-      content_name: 'Sami Store featured collection',
-      content_type: 'product'
+    function renderProducts() {
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = products.map(product => `
+        <article class="card">
+          <div class="photo">
+            <img src="${product.image}" alt="${product.name}" loading="lazy">
+          </div>
+          <h3>${product.name}</h3>
+          <div class="desc">${product.description}</div>
+          <div class="price-row">
+            <span class="price">${money(product.price)}</span>
+            <button class="small-btn" type="button"
+              onclick="addToCart('${product.id}')">Add to bag</button>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function addToCart(productId) {
+      const product = products.find(item => item.id === productId);
+      if (!product) return;
+
+      if (!cart[productId]) {
+        cart[productId] = { quantity: 0 };
+      }
+
+      cart[productId].quantity += 1;
+      saveCart();
+
+      trackDemoEvent("AddToCart", {
+        content_name: product.name,
+        content_ids: [product.id],
+        content_type: "product",
+        value: product.price,
+        currency: "PKR"
+      });
+
+      toast(product.name + " added to your demo bag.");
+    }
+
+    function changeQuantity(productId, change) {
+      if (!cart[productId]) return;
+
+      cart[productId].quantity += change;
+
+      if (cart[productId].quantity <= 0) {
+        delete cart[productId];
+      }
+
+      saveCart();
+    }
+
+    function removeItem(productId) {
+      if (!cart[productId]) return;
+      delete cart[productId];
+      saveCart();
+      toast("Item removed from your demo bag.");
+    }
+
+    function clearCart() {
+      cart = {};
+      saveCart();
+      toast("Your demo bag is empty.");
+    }
+
+    function renderCart() {
+      const container = document.getElementById("cartItems");
+      const entries = Object.entries(cart).filter(([id, item]) =>
+        products.some(product => product.id === id) &&
+        item && Number(item.quantity) > 0
+      );
+
+      let totalItems = 0;
+      let totalPrice = 0;
+
+      if (entries.length === 0) {
+        container.innerHTML = '<p class="empty-cart">Your bag is empty. Add a sneaker to get started.</p>';
+      } else {
+        container.innerHTML = entries.map(([id, item]) => {
+          const product = products.find(p => p.id === id);
+          const quantity = Number(item.quantity);
+          totalItems += quantity;
+          totalPrice += product.price * quantity;
+
+          return `
+            <div class="cart-item">
+              <div>
+                <div class="cart-name">${product.name}</div>
+                <div class="cart-meta">${money(product.price)} each</div>
+              </div>
+              <div class="qty-controls" aria-label="Quantity controls">
+                <button type="button" aria-label="Decrease ${product.name} quantity"
+                  onclick="changeQuantity('${id}',-1)">−</button>
+                <strong>${quantity}</strong>
+                <button type="button" aria-label="Increase ${product.name} quantity"
+                  onclick="changeQuantity('${id}',1)">+</button>
+              </div>
+              <button class="remove-btn" type="button"
+                onclick="removeItem('${id}')">Remove</button>
+            </div>
+          `;
+        }).join("");
+      }
+
+      document.getElementById("cartCount").textContent = totalItems;
+      document.getElementById("cartTotal").textContent = money(totalPrice);
+    }
+
+    renderProducts();
+    renderCart();
+
+    trackDemoEvent("ViewContent", {
+      content_name: "Sami Store sneaker collection",
+      content_type: "product"
     });
   </script>
 
